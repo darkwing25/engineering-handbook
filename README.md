@@ -20,10 +20,15 @@ docs/
     SOFTWARE_DESIGN_PHILOSOPHY.md
     edr/
 examples/
+    LICENSE
     customer/
     logging/
     testing/
+.github/
+    ISSUE_TEMPLATE/
 AGENTS.md
+CONTRIBUTING.md
+LICENSE
 README.md
 ```
 
@@ -40,6 +45,16 @@ The `examples/` directory shows the standards in code:
 - `examples/testing/` demonstrates Arrange/Act/Assert tests, explicit Mockito setup, checked exception assertions, temporary directories, and deterministic test design.
 
 The `ai/` directory contains durable guidance for Codex, Copilot, and future AI coding assistants. AI tools should read the philosophy first, then the architecture practices, then the Java coding standard.
+
+## Community and Licensing
+
+This handbook is meant to be reused, adapted, and improved with minimal friction.
+
+The handbook prose and documentation are licensed under the Creative Commons Attribution 4.0 International License. See `LICENSE`.
+
+Code examples under `examples/` are licensed under the MIT License. See `examples/LICENSE`.
+
+Corrections and substantial proposals are welcome through GitHub issues. See `CONTRIBUTING.md` before proposing changes that would affect the handbook's scope, voice, or engineering direction.
 
 ## Draft Status
 
