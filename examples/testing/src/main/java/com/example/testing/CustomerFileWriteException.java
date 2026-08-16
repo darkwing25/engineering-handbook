@@ -1,0 +1,18 @@
+package com.example.testing;
+
+/**
+ * Thrown when a customer file cannot be written.
+ */
+public class CustomerFileWriteException extends Exception
+{
+	/**
+	 * Creates a customer file write exception.
+	 *
+	 * @param p_message The message.
+	 * @param p_cause The cause.
+	 */
+	public CustomerFileWriteException(final String p_message, final Throwable p_cause)
+	{
+		super(p_message, p_cause);
+	}
+}
