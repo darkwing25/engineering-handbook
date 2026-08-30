@@ -1,88 +1,79 @@
 # Software Design Philosophy
 
-> Software should read like a well-written book. Beautiful code is like beautiful poetry: its meaning is clear, its structure is deliberate, and its purpose is immediately understood.
+> Software is written for people first and computers second. Well-written software should read like a well-written book. Beautiful code is like beautiful poetry: its meaning is clear, its structure is deliberate, and its purpose is immediately understood.
 
 ## Purpose
 
-This document captures the design values that guide the rest of the handbook. It is intentionally language-independent. The Java standard is one expression of these principles, but the same philosophy can guide shell scripts, Python, JavaScript, YAML, Terraform, and future languages or tools.
+This document is the language-independent foundation of the handbook. It applies to application code, scripts, infrastructure, configuration, tests, build definitions, operational automation, and documentation.
 
-## Core Philosophy
+Language standards express these principles in forms appropriate to their languages. Java may favour object-oriented design; shell, PowerShell, Ansible, HTML, CSS, JavaScript, Python, Perl, and future languages may require different structures. A language-specific standard must explain those differences rather than imitate Java where the language does not support the same model well.
 
-Software should be written for people first and computers second. The compiler only needs the program to be correct; future developers need it to be understandable.
+## Human Comprehension Is the Organizing Principle
 
-Therefore, code should be explicit, predictable, cohesive, testable, and easy to reason about. Abstractions, frameworks, language features, and design patterns are valuable only when they reduce long-term maintenance cost and cognitive load.
+The compiler needs a program to be correct. Developers must also be able to understand what the program does, how its parts collaborate, why decisions were made, and how to change it safely.
+
+Code should minimize cognitive load so a developer can concentrate on behaviour, business intent, and architecture instead of decoding clever syntax, hidden dependencies, inconsistent structure, or unnecessary abstraction. This applies equally to junior developers, experienced engineers new to the system, the original author returning later, and responders working under incident pressure.
+
+Correctness is mandatory. Readability, maintainability, debuggability, testability, security, and operability are also primary requirements, not optional polish.
 
 ## Principles
 
-### Minimize Cognitive Load
-
-Good software minimizes the cognitive effort required to understand, debug, test, and maintain it. Assume the future maintainer is intelligent but unfamiliar with the code. That maintainer may be a junior developer, a senior engineer who joined recently, the original author six months later, or someone debugging an incident under pressure.
-
 ### Prefer Explicit Behaviour
 
-Important behaviour should be visible in the code. Hidden dependency injection, global lookups, implicit framework magic, compressed lambdas, and unclear control flow make software harder to reason about.
+Important behaviour, dependencies, ownership, failure modes, and lifecycle decisions should be visible. Explicit code is not the same as verbose code: the goal is less guessing, not more lines.
 
-Explicit code is not the same as verbose code. The goal is not more lines. The goal is less guessing.
+### Optimize for Comprehension Before Conciseness
 
-### Optimize for Human Comprehension Before Conciseness
-
-Short code is not automatically better code. Prefer straightforward code that a competent developer can read quickly over compact code that requires mental expansion.
-
-Conciseness is valuable only after clarity has been preserved.
+Short code is not automatically clear code. Prefer straightforward control flow and precise names over compressed expressions that require mental expansion.
 
 ### Prefer Principles Over Products
 
-Frameworks, libraries, and tools evolve. Sound engineering principles endure. A logging framework, mocking library, test runner, or AI assistant can be replaced. The principles behind decoupling, testability, explicit dependencies, and maintainable design should remain stable.
+Tools, frameworks, vendors, and AI models change. Durable principles should survive those changes. Tool-specific implementation belongs in project or language documentation.
 
-### Abstractions Carry Cost
+### Respect the Cost of Abstraction
 
-Every abstraction carries a maintenance cost. Introduce abstractions only when the engineering benefit exceeds that cost.
+Every abstraction must be learned, tested, operated, and maintained. Interfaces, factories, builders, facades, strategies, inheritance, functional composition, and generated code are justified only when their benefit exceeds that cost.
 
-Patterns, interfaces, factories, builders, facades, and strategies are tools. They should solve real problems, not demonstrate knowledge of terminology.
+### Make Valid State Easy to Construct
 
-### Construction Should Reflect Validity
-
-If an object cannot exist without a value, require that value during construction. If a value is optional, allow it to be supplied through a clear optional path. Validate before exposing a completed object.
-
-### Fail Fast
-
-Detect invalid state as early as practical. Required dependencies should be validated during construction, not discovered several layers later when a method happens to use them.
-
-Defensive checks still have value, but they do not replace early validation.
-
-### Make Important Characteristics Deliberate
-
-Important software characteristics should be explicit design decisions, not accidental side effects of an implementation.
-
-This applies to:
-
-- thread safety,
-- immutability,
-- transaction ownership,
-- resource ownership,
-- public APIs,
-- exception contracts,
-- extension points,
-- and lifecycle management.
+Required values and dependencies have no valid default. They must be supplied and validated before use. A dependency may be initialized lazily only when its owner provides a safe default. Missing, malformed, or internally inconsistent configuration should fail fast with a diagnostic that helps the operator correct it.
 
 ### Design for Testability
 
-Tests are the first consumer of a design. If production code is difficult to unit test, that often indicates a design problem: hidden dependencies, mixed responsibilities, static state, tight coupling, or business logic tangled with I/O.
+Tests are the first consumer of a design. Hidden collaborators, static construction in business logic, mixed responsibilities, global state, and tangled I/O make both the code and its behaviour harder to understand.
 
-Testability is not only a testing concern. It is a design discipline.
+Every application-visible method requires behavioural coverage, including constructors, accessors, and generated APIs. Compiler-created synthetic internals outside the observable application contract are not direct test targets.
 
-### Maintainability Is a Primary Requirement
+### Make Ownership Explicit
 
-Most professional software work happens after the first version is written. Code should be built for long-term maintenance, not only initial delivery.
+Resource, transaction, data, configuration, security, operational, and decision ownership must be clear. A system that works only because one person remembers how it works is not maintainable.
 
-Self-documenting, well-structured code reduces the cost of future changes and the risk of accidental breakage.
+### Design for Change and Recovery
 
-### Business Reality Matters
+Software will change, dependencies will age, environments will drift, incidents will occur, and people will leave. Build reproducibly, document locally, preserve rollback paths, test restoration, and record decisions so change does not depend on tribal knowledge.
 
-Engineering quality matters, but scope must be visible. Improve code where practical, especially when working in risky or untested areas, but do not allow a small task to silently become a broad rewrite.
+### Prefer Reversible Progress
 
-When the foundation is quicksand, broad refactoring may be necessary. When it is not necessary, keep changes focused.
+Small, observable, reversible changes reduce risk. Irreversible changes require explicit identification and approval. Refactoring should keep scope visible; deployments should promote a tested immutable artifact; data changes should preserve compatibility through the rollback window.
+
+### Treat Security and Privacy as Design Properties
+
+Least privilege, default denial, data classification, secret protection, dependency monitoring, auditability, and human accountability are part of system design. They are not tasks deferred until release.
+
+### Keep Scope Visible
+
+Improve unsafe or untestable foundations when required, but do not allow a small task to become a broad rewrite without making that expansion visible. Required, adjacent, and strategic refactoring have different approval needs.
+
+### Use Evidence for Optimization
+
+Correctness and clarity precede low-level optimization. Address credible risks and measured bottlenecks. Do not trade comprehensibility for speculative performance claims.
+
+## Principles and Conventions
+
+A principle explains an enduring engineering value. A convention provides consistency within a language or project. Deliberate conventions remain mandatory where adopted even when another convention could also be reasonable.
+
+When a language or project must deviate, document the reason locally. Feed reusable lessons back into the central handbook; keep genuinely local constraints in the project.
 
 ## Summary
 
-The handbook favours clarity over cleverness, maintainability over fashion, explicit design over accidental behaviour, and principles over products.
+The handbook favours human comprehension over cleverness, explicit design over accidental behaviour, evidence over fashion, reversible change over surprise, and durable knowledge over tribal memory.

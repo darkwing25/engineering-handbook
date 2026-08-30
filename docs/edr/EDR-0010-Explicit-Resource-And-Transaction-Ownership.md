@@ -6,7 +6,7 @@ Resource ownership and transaction boundaries must be explicit. Prefer `try-with
 
 ## Rationale
 
-Resources should be closed promptly in the smallest reasonable scope. A method must not close a resource supplied by its caller unless ownership is explicitly transferred.
+Resources should be closed promptly in the smallest reasonable scope. A method must not close a resource supplied by its caller unless ownership is explicitly transferred. Closing an owned buffered wrapper flushes and closes it, so `try-with-resources` normally provides both operations. An explicit `flush()` is needed only when buffered data must become visible before the resource scope ends.
 
 Transactions belong where the full business operation is understood. Repositories may participate in a transaction, but they should not commit or roll back a larger service operation independently.
 

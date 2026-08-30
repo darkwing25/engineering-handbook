@@ -1,7 +1,7 @@
 package com.example.logging;
 
 /**
- * Creates application loggers.
+ * Creates application loggers through a pure deterministic factory.
  */
 public final class LoggerFactory
 {
@@ -36,16 +36,11 @@ public final class LoggerFactory
 	 * Creates a logger for the supplied class.
 	 *
 	 * @param p_class The class that owns the logger.
-	 *
 	 * @return The logger.
 	 */
 	public static ILogger getLogger(final Class<?> p_class)
 	{
-		ILogger logger = null;
-
-		logger = new ConsoleLogger(p_class);
-
-		return logger;
+		return new ConsoleLogger(p_class);
 	}
 
 	// ########################################################################

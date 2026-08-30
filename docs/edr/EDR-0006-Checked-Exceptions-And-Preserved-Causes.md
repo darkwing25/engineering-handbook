@@ -2,13 +2,13 @@
 
 ## Decision
 
-Prefer checked exceptions for business and recoverable application errors. Throw specific custom exceptions and preserve the original cause when wrapping.
+Use checked exceptions for anticipated, recoverable business and persistence errors. Use unchecked exceptions for programming errors, API misuse, and broken invariants. Throw specific exceptions and preserve the original cause when wrapping.
 
 ## Rationale
 
 Checked exceptions make error contracts visible and easier to test. Specific exceptions communicate what failed. Preserved causes keep diagnostic context intact.
 
-Catch blocks should explain why the exception is handled so future maintainers understand the intent.
+A catch block explains its reasoning when the handling is not self-evident. A concise comment should identify an intentional exception translation at an application boundary when that rationale helps the reader understand why a different exception is thrown. A comment should explain the decision rather than merely restate the syntax.
 
 ## Trade-Offs
 

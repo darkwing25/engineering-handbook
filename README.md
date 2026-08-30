@@ -1,61 +1,61 @@
 # Engineering Handbook
 
-This repository captures a pragmatic engineering standard for maintainable Java systems. It is not only a style guide. It records the design philosophy, architecture guidance, coding conventions, review practices, decision records, AI guidance, and examples needed to write software that another developer can understand, test, debug, and maintain years later.
+This repository defines a language-independent engineering handbook for software that people can understand, test, operate, and maintain over time. Java is the first language-specific standard because it is the language for which the initial conventions are most fully established. Other language standards may be added without forcing Java's object model or syntax onto them.
 
-The core philosophy is simple: software is written for people first and computers second. The compiler needs the program to be correct; future maintainers need it to be clear.
+The central thesis is simple: software is written for people first and computers second. Correct execution is mandatory, but future developers must be able to understand the behaviour and architecture without becoming lost in implementation minutiae.
+
+## Start Here
+
+Read the handbook in this order:
+
+1. [Software Design Philosophy](docs/SOFTWARE_DESIGN_PHILOSOPHY.md)
+2. [Engineering Lifecycle Practices](docs/ENGINEERING_LIFECYCLE_PRACTICES.md)
+3. [Project Documentation Standard](docs/PROJECT_DOCUMENTATION_STANDARD.md)
+4. [Java Architecture and Development Practices](docs/JAVA_ARCHITECTURE_AND_DEVELOPMENT_PRACTICES.md)
+5. [Java Coding Standard](docs/JAVA_CODING_STANDARD.md)
+6. [Code Review Checklist](docs/CODE_REVIEW_CHECKLIST.md)
+7. [Engineering Decision Records](docs/ENGINEERING_DECISION_RECORDS.md)
+
+The root [ENGINEERING.md](ENGINEERING.md) is the engineering entry point for this repository itself.
 
 ## Repository Structure
 
 ```text
-ai/
-    AI_ASSISTED_ENGINEERING_AUTHORING_WORKFLOW.md
-    AI_EDITOR_GUIDELINES.md
-    CODEX_PROJECT_PROMPT.md
-    COPILOT_INSTRUCTIONS.md
-docs/
-    CODE_REVIEW_CHECKLIST.md
-    ENGINEERING_DECISION_RECORDS.md
-    JAVA_ARCHITECTURE_AND_DEVELOPMENT_PRACTICES.md
-    JAVA_CODING_STANDARD.md
-    SOFTWARE_DESIGN_PHILOSOPHY.md
-    edr/
-examples/
-    LICENSE
-    customer/
-    logging/
-    testing/
-.github/
-    ISSUE_TEMPLATE/
-AGENTS.md
-CONTRIBUTING.md
-LICENSE
-README.md
+ai/          AI authoring, editing, coding, and operational-governance rules
+docs/        philosophy, lifecycle, Java standards, review guidance, and EDRs
+examples/    independently buildable Java teaching projects
 ```
 
-## How to Use This Handbook
+The `ai/` directory contains durable guidance for Codex, Copilot, and other approved AI assistants. AI-generated work is held to the same engineering standard as human-written work and remains subject to accountable human review.
 
-Start with `docs/SOFTWARE_DESIGN_PHILOSOPHY.md`. It is the north star for every other document. Then read `docs/JAVA_ARCHITECTURE_AND_DEVELOPMENT_PRACTICES.md` for design guidance and `docs/JAVA_CODING_STANDARD.md` for concrete Java conventions.
+## Runnable Examples
 
-Use `docs/CODE_REVIEW_CHECKLIST.md` before pull requests and during reviews. Use `docs/ENGINEERING_DECISION_RECORDS.md` to find the reason behind a standard. Each EDR is intentionally one topic and roughly one page.
+The Java examples target Java 25 and use Maven. Each example has its own build, and the repository root provides an aggregate build.
 
-The `examples/` directory shows the standards in code:
+```shell
+mvn verify
+```
 
-- `examples/customer/` demonstrates feature-oriented packages, constructor injection, checked exceptions, factories, services, repositories, and tests.
-- `examples/logging/` demonstrates a logging facade that isolates application code from any particular backend.
-- `examples/testing/` demonstrates Arrange/Act/Assert tests, explicit Mockito setup, checked exception assertions, temporary directories, and deterministic test design.
+The build compiles every example, runs its tests, and enforces at least 80% line and branch coverage. The example baseline changes only when a later Java LTS release is deliberately adopted.
 
-The `ai/` directory contains durable guidance for Codex, Copilot, and future AI coding assistants. AI tools should read the philosophy first, then the architecture practices, then the Java coding standard.
+## Applying the Handbook to a Project
+
+Every adopting project provides:
+
+- a root `ENGINEERING.md` entry point,
+- `docs/PROJECT_ENGINEERING.md` for project-wide implementation details,
+- and one `docs/<LANGUAGE>_ENGINEERING.md` file per language in use.
+
+The central handbook supplies durable principles. Each project documents its concrete versions, tools, commands, environments, risks, owners, and approved deviations. Reusable lessons discovered through a project are contributed back to the central handbook; one-off constraints remain local.
 
 ## Community and Licensing
 
-This handbook is meant to be reused, adapted, and improved with minimal friction.
+Handbook prose and documentation are licensed under the Creative Commons Attribution 4.0 International License. See [LICENSE](LICENSE).
 
-The handbook prose and documentation are licensed under the Creative Commons Attribution 4.0 International License. See `LICENSE`.
+Code examples under `examples/` are licensed under the MIT License. See [examples/LICENSE](examples/LICENSE).
 
-Code examples under `examples/` are licensed under the MIT License. See `examples/LICENSE`.
+Corrections and substantial proposals are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Corrections and substantial proposals are welcome through GitHub issues. See `CONTRIBUTING.md` before proposing changes that would affect the handbook's scope, voice, or engineering direction.
+## Status
 
-## Draft Status
-
-This package is Draft 1.0. It is fully populated from the established decisions, but it should still be reviewed document by document before being treated as final policy.
+This handbook remains under deliberate review. Published guidance should change through reviewable updates and EDRs, not through undocumented convention drift.

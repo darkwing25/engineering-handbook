@@ -8,11 +8,11 @@ Good software should minimize the cognitive effort required to understand, debug
 
 The future maintainer is intelligent but unfamiliar with the code. The code should not require that person to reconstruct hidden behaviour, decode clever syntax, search for dependencies, or infer structure from inconsistent formatting.
 
-This principle guides the whole handbook: explicit dependencies, predictable class layout, one return statement, classic switch syntax, feature-oriented packages, straightforward tests, and restrained use of abstractions.
+This principle guides the whole handbook: explicit dependencies, predictable class layout, one return statement, classic switch syntax, feature-oriented packages, straightforward tests, and restrained use of abstractions. It also rejects unnecessary line wrapping, throwaway result variables, and compact functional syntax when those forms make a simple operation harder to see.
 
 ## Trade-Offs
 
-Some code will be longer than the most compact possible version. That cost is acceptable when the result is easier to read and safer to maintain.
+Some code will be longer than the most compact possible version. Explicit functional-interface implementations are one example. That cost is acceptable when the result is easier to read and safer to maintain. Conversely, extra lines are not valuable when they only wrap a short declaration or assign an expression to a local variable that is immediately returned.
 
 ## Alternatives Considered
 

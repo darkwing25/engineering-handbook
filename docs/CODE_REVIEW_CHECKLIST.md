@@ -1,90 +1,96 @@
 # Code Review Checklist
 
-Use this checklist before opening a pull request and during review. Reviews should improve the code, teach the developer, and enforce agreed standards.
+Use this checklist before a pull request or local branch merge and during review. A sole developer may self-review; another qualified reviewer should participate when available. Explain the reason for material feedback.
 
-Prefer conversation for meaningful design feedback. Written comments should explain the reason, not only the command.
+## Intent and Correctness
 
-## Correctness
+- [ ] The change solves the approved problem without hidden scope expansion.
+- [ ] Edge cases, invalid inputs, absence, and failure paths are deliberate.
+- [ ] Exceptions are specific, meaningful, and preserve causes.
+- [ ] Public contracts and compatibility consequences are understood.
 
-- [ ] Does the change solve the requested problem?
-- [ ] Are edge cases handled?
-- [ ] Are invalid inputs handled deliberately?
-- [ ] Are exceptions specific and meaningful?
-- [ ] Are original exception causes preserved?
-- [ ] Are return values correct for success, absence, and failure cases?
+## Comprehensibility and Design
 
-## Design
+- [ ] A developer new to the code can identify each object's responsibility and collaborators.
+- [ ] Classes, methods, branches, loops, nesting, packages, and parameter counts have been reviewed as design signals.
+- [ ] The design uses real object-oriented decomposition rather than global state or procedural code collected in a class.
+- [ ] Inheritance represents substitutability; collaboration is used for ordinary reuse.
+- [ ] Abstractions and patterns solve present engineering needs.
+- [ ] Adapters translate, facades simplify, and business decisions remain in business objects.
+- [ ] Large selection logic becomes strategies when behaviour genuinely varies.
 
-- [ ] Does each class have one clear responsibility?
-- [ ] Is the responsibility in the right class or layer?
-- [ ] Are abstractions justified by current requirements?
-- [ ] Are patterns solving real engineering problems?
-- [ ] Are business decisions kept out of adapters and facades?
-- [ ] Are large switches replaced by strategies when behaviour genuinely varies?
-- [ ] Are singletons avoided unless uniqueness is inherent?
+## Dependencies and Testability
 
-## Dependencies
+- [ ] Required collaborators are explicitly constructor-injected and validated.
+- [ ] Business methods do not construct hidden side-effecting collaborators.
+- [ ] Class-owned defaults are safely lazy-initialized and narrowly replaceable.
+- [ ] Injectable factories or resolvers are used when orchestration selects a collaborator per call.
+- [ ] Package-private helper tests supplement rather than replace public-method tests.
+- [ ] Reflection-based private testing is confined to justified legacy code.
+- [ ] Every application-visible method has a behavioural unit test, including constructors, accessors, and generated APIs.
+- [ ] Every unit-test method has Javadoc identifying its happy path, edge condition, or failure trigger.
+- [ ] Test classes and methods use the narrowest JUnit-supported visibility, and test attributes remain private unless an extension requires otherwise.
+- [ ] Tests are deterministic, isolated, and organized with Arrange, Act, Assert.
+- [ ] Failure paths and critical rules are meaningfully asserted rather than merely executed for coverage.
+- [ ] Line and branch coverage satisfy the greenfield threshold or brownfield non-regression policy.
 
-- [ ] Are dependencies explicit?
-- [ ] Is constructor injection used for required dependencies?
-- [ ] Are required dependencies validated during construction?
-- [ ] Are hidden service locators and global lookups avoided?
-- [ ] Is application code decoupled from replaceable infrastructure libraries?
+## Resources, Transactions, and Data
 
-## Testability
+- [ ] Resource ownership and cleanup are explicit; caller-owned resources remain open.
+- [ ] `try-with-resources` is used where appropriate.
+- [ ] The layer that understands the business operation owns its transaction.
+- [ ] Schema and data-format changes preserve backward compatibility through the rollback window.
+- [ ] Feature flags identify owner, purpose, default, rollback, and removal condition.
 
-- [ ] Is the code easy to unit test?
-- [ ] Are external systems isolated behind mockable interfaces?
-- [ ] Are tests deterministic?
-- [ ] Are test databases and files isolated from production and developer machines?
-- [ ] Are Arrange, Act, and Assert sections clear?
-- [ ] Does each test verify one behaviour?
-- [ ] Are flaky tests treated as defects?
+## Logging, Exceptions, and Observability
 
-## Resource and Transaction Ownership
+- [ ] Logging uses the application facade and excludes secrets.
+- [ ] A failure is logged once at the boundary that handles or reports it.
+- [ ] Checked and unchecked exceptions match recoverability and caller expectations.
+- [ ] Catch-block reasoning is documented when it is not self-evident.
+- [ ] Deployable behaviour updates logs, health checks, metrics, events, warnings, alerts, dashboards, and runbooks as needed.
+- [ ] Alerts require meaningful response; obsolete or noisy signals are removed.
 
-- [ ] Are resources closed in the smallest reasonable scope?
-- [ ] Is `try-with-resources` used for `AutoCloseable` resources?
-- [ ] Does the method avoid closing caller-owned resources?
-- [ ] Are transaction boundaries explicit?
-- [ ] Does the service layer own business transactions when multiple repository calls must succeed together?
+## Security and Dependencies
 
-## Logging and Exceptions
+- [ ] Data classification, trust boundaries, authorization, and abuse cases are addressed proportionately.
+- [ ] Secrets remain outside source, logs, artifacts, and AI prompts.
+- [ ] Dependencies and plugins are necessary, explicitly versioned, and vulnerability-reviewed.
+- [ ] Deferred upgrades or security work record risk, owner, and review condition.
 
-- [ ] Is logging done through the facade?
-- [ ] Is useful context included?
-- [ ] Are duplicate stack traces avoided?
-- [ ] Does each catch block explain why the exception is handled?
-- [ ] Are business errors represented by custom checked exceptions where appropriate?
+## Delivery and Recovery
 
-## Maintainability
+- [ ] Pull-request or merge gates include a clean build, unit tests, and applicable integration tests.
+- [ ] The same immutable artifact is promoted through environments.
+- [ ] Configuration is external, validated at startup, and represented by versioned non-secret schemas or examples.
+- [ ] Rollback and roll-forward are documented and tested proportionately.
+- [ ] Irreversible actions are identified and approved before deployment.
+- [ ] Backup and restoration expectations are tested when durable data is owned.
 
-- [ ] Is the code clear to a developer unfamiliar with the project?
-- [ ] Is the class layout predictable?
-- [ ] Are names specific enough to reveal intent?
-- [ ] Are package boundaries cohesive?
-- [ ] Is the package size a design signal if it exceeds roughly 10-12 classes?
-- [ ] Is the code explicit rather than clever?
+## Java Style
 
-## Performance
+- [ ] Allman braces, tabs, mandatory braces, names, and Javadoc follow the standard.
+- [ ] Every Java type contains the complete section-banner layout.
+- [ ] Every method has exactly one return statement at its end, or one natural exit when `void`.
+- [ ] A local variable is not introduced solely to return it on the next line.
+- [ ] Constructor-invoked setters are non-overridable.
+- [ ] Declarations and expressions are not wrapped unnecessarily when they fit the preferred line length.
+- [ ] Functional-interface operations are explicit when a lambda would hide behaviour or create cognitive friction.
+- [ ] Streams, switch expressions, and annotations are used only when they improve clarity.
 
-- [ ] Are obvious performance risks considered?
-- [ ] Is database work pushed to the database where practical?
-- [ ] Is caching justified by a clear access pattern or evidence?
-- [ ] Are low-level optimizations avoided unless justified?
+## Documentation, Decisions, and AI
 
-## Style
-
-- [ ] Does new Java follow the Java Coding Standard?
-- [ ] Are braces always present?
-- [ ] Is there one return statement per method?
-- [ ] Are annotations minimal and alphabetized?
-- [ ] Are streams and lambdas used only when clearer than loops?
-- [ ] Are classic switch statements used by default?
+- [ ] Documentation, examples, runbooks, and affected EDRs change with the behaviour they describe.
+- [ ] Project and language engineering documents record versions, tools, risks, owners, and deviations.
+- [ ] AI-generated work meets the same engineering standard as human work.
+- [ ] A named human understands and accepts the change.
+- [ ] Approved AI services and data-handling rules were followed.
+- [ ] Required AI commit trailers and pull-request disclosure are present.
+- [ ] Moderate- or high-risk agentic work followed the required plan, critique, approval, and recovery controls.
 
 ## Review Outcome
 
-- [ ] Required fixes are clearly distinguished from suggestions.
-- [ ] Nitpicks are marked as optional unless they violate a team standard.
-- [ ] Larger refactoring opportunities are tracked separately unless they block the change.
-- [ ] The pull request explains any deliberate deviation from the handbook.
+- [ ] Required fixes are distinguished from suggestions.
+- [ ] Optional preferences are identified as such.
+- [ ] Strategic refactoring is separately approved unless it blocks safe delivery.
+- [ ] Deliberate deviations state their reason, risk, owner, and review condition.

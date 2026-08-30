@@ -1,5 +1,7 @@
 package com.example.logging;
 
+import java.util.regex.Matcher;
+
 /**
  * Simple console logger used by the examples.
  */
@@ -26,22 +28,20 @@ class ConsoleLogger implements ILogger
 	 */
 	public String getLoggerName()
 	{
-		String loggerName = m_loggerName;
-
-		if (loggerName == null)
+		if (m_loggerName == null)
 		{
 			throw new IllegalStateException("The logger name has not been configured.");
 		}
 
-		return loggerName;
+		return m_loggerName;
 	}
 
 	/**
-	 * Sets the logger name.
+	 * Sets the logger name during controlled construction or testing.
 	 *
 	 * @param p_loggerName The logger name.
 	 */
-	void setLoggerName(final String p_loggerName)
+	final void setLoggerName(final String p_loggerName)
 	{
 		if (p_loggerName == null)
 		{
@@ -60,8 +60,13 @@ class ConsoleLogger implements ILogger
 	 *
 	 * @param p_class The class that owns the logger.
 	 */
-	public ConsoleLogger(final Class<?> p_class)
+	ConsoleLogger(final Class<?> p_class)
 	{
+		if (p_class == null)
+		{
+			throw new IllegalArgumentException("The logger class is required.");
+		}
+
 		setLoggerName(p_class.getName());
 	}
 
@@ -114,7 +119,8 @@ class ConsoleLogger implements ILogger
 
 		for (Object argument : p_arguments)
 		{
-			formattedMessage = formattedMessage.replaceFirst("\\{}", String.valueOf(argument));
+			formattedMessage = formattedMessage.replaceFirst("\\{\\}",
+				Matcher.quoteReplacement(String.valueOf(argument)));
 		}
 
 		System.out.println(p_level + " " + getLoggerName() + " - " + formattedMessage);

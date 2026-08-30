@@ -2,11 +2,13 @@
 
 ## Decision
 
-Treat testability as a design discipline. Tests are the first consumer of a design.
+Treat testability as a design discipline. Tests are the first consumer of a design. Side-effecting collaborators are explicit and replaceable.
 
 ## Rationale
 
 Code that is difficult to test often has hidden dependencies, mixed responsibilities, static state, global lookups, or business logic tangled with I/O. TDD improves production design by forcing dependencies and behaviours to become visible.
+
+When a service owns strategy selection, its public method uses an injectable factory and a package-private helper receives the selected strategy. Tests exercise both the public orchestration and the helper logic. Reflective private testing is reserved for legacy code that cannot yet be refactored safely.
 
 Unit tests should verify one behaviour. They may contain several assertions when those assertions all support that behaviour.
 

@@ -10,17 +10,42 @@ import java.nio.file.Path;
  */
 public class CustomerFileWriter
 {
+	// ########################################################################
+	// Constants
+	// ########################################################################
+
+	// ########################################################################
+	// Attributes
+	// ########################################################################
+
+	// ########################################################################
+	// Accessors
+	// ########################################################################
+
+	// ########################################################################
+	// Constructors
+	// ########################################################################
+
+	/**
+	 * Creates a customer file writer.
+	 */
+	public CustomerFileWriter()
+	{
+	}
+
+	// ########################################################################
+	// Public Methods
+	// ########################################################################
+
 	/**
 	 * Writes a customer CSV file.
 	 *
 	 * @param p_file The output file.
 	 * @param p_customerId The customer identifier.
 	 * @param p_customerName The customer name.
-	 *
 	 * @throws CustomerFileWriteException Thrown when the file cannot be written.
 	 */
-	public void writeCustomer(final Path p_file, final String p_customerId, final String p_customerName)
-		throws CustomerFileWriteException
+	public void writeCustomer(final Path p_file, final String p_customerId, final String p_customerName) throws CustomerFileWriteException
 	{
 		try (BufferedWriter writer = Files.newBufferedWriter(p_file))
 		{
@@ -35,4 +60,16 @@ public class CustomerFileWriter
 			throw new CustomerFileWriteException("Unable to write the customer file.", p_exception);
 		}
 	}
+
+	// ########################################################################
+	// Protected Methods
+	// ########################################################################
+
+	// ########################################################################
+	// Private Methods
+	// ########################################################################
+
+	// ########################################################################
+	// Main
+	// ########################################################################
 }

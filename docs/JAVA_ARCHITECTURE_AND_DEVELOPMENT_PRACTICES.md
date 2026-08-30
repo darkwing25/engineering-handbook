@@ -1,6 +1,25 @@
 # Java Architecture and Development Practices
 
-This document describes how Java systems should be designed, evolved, and tested.
+This document explains how the language-independent [Software Design Philosophy](SOFTWARE_DESIGN_PHILOSOPHY.md) is applied to Java systems. It teaches object-oriented design as well as recording conventions, because a developer cannot follow a Java standard reliably without understanding the model behind it.
+
+## Object-Oriented Foundations
+
+An object combines a defined responsibility, state, and behaviour behind a deliberate interface. A class describes that object; instantiation creates an instance. Collaborating objects divide a system into parts that can be understood and tested independently.
+
+Encapsulation does not mean placing unrelated operations in one large class. It means an object protects coherent state and exposes behaviour that belongs to its responsibility. A Java class used as a bag of global constants or a long collection of unrelated procedures is not object-oriented merely because the source is inside a class declaration.
+
+Inheritance expresses a genuine substitutable relationship. A subclass must honour the promises of its parent. Prefer collaboration when one object merely needs another object's behaviour; do not use inheritance solely to reuse implementation.
+
+Object-oriented decomposition should make these questions easy to answer:
+
+- What does this object know?
+- What does this object do?
+- Which invariants does it protect?
+- Which collaborators does it require?
+- Which failures can it report?
+- How can its behaviour be tested in isolation?
+
+Large classes, large methods, deeply nested conditionals or loops, and long parameter lists are design-review signals. They are not automatic numeric violations, but they often reveal mixed responsibilities or missing objects. Apply engineering judgment rather than gaming a measurement.
 
 ## Package Organization
 
@@ -13,190 +32,127 @@ com.example.order
 
 Prefer this over global layer buckets such as `services`, `repositories`, and `models`.
 
-Rules:
-
 - Use lowercase package names.
 - Keep package hierarchies shallow and meaningful.
 - Keep related interfaces, implementations, exceptions, models, and tests close together.
-- Aim for no more than roughly 10-12 classes per package.
-- Treat larger packages as a design review trigger, not an automatic violation.
+- Treat a package approaching roughly 10-12 types as a responsibility-review signal, not a mechanical limit.
 - Mirror the production package hierarchy under tests.
 
-## Dependency Injection and Construction
+## Collaborators, Construction, and Injection
 
-- Prefer explicit constructor injection.
-- Avoid field injection.
-- Avoid hidden framework wiring.
-- Use setters only for optional or controlled replacement.
-- Keep dependency setters package-private or protected unless they are part of the public API.
-- Validate required dependencies during construction.
-- Retain defensive getter validation where useful.
-- Do not pass loggers through constructors; loggers are class constants.
+A business method must not conceal a side-effecting collaborator by constructing it internally. Database clients, repositories, remote-service clients, clocks, file writers, strategy resolvers, and similar collaborators must be replaceable so business behaviour can be tested without performing the side effect.
 
-## SOLID
+Creating ordinary values, collections, calculations, and result objects inside a method is normal. The distinction is ownership and observable effects, not the `new` keyword itself.
 
-Use SOLID as design guidance, not rigid doctrine.
+Use these forms deliberately:
 
-- Single Responsibility: a class should have one clear reason to change.
-- Open/Closed: create extension points when real variation exists, not for hypothetical flexibility.
-- Liskov Substitution: subclasses must honour parent contracts.
-- Interface Segregation: keep interfaces focused without fragmenting needlessly.
-- Dependency Inversion: business logic should depend on useful abstractions, not infrastructure implementations.
+- Constructor injection for a required collaborator that has no safe default.
+- Method-parameter injection when the caller legitimately chooses the collaborator for that operation.
+- A package-private or protected replacement setter when the class owns a safe default that may be initialized lazily and replaced in a test.
+- An injectable factory or resolver when the service owns orchestration but the selected collaborator varies per call.
 
-Class size, package size, and parameter count are warning signals. They should prompt a responsibility review.
+Do not use field injection or hidden service locators. Validate required dependencies during construction and retain defensive accessor validation where useful. Do not inject loggers; loggers are class-level facade constants.
 
-## Design Patterns
+A setter invoked by a constructor must be non-overridable, normally package-private and `final`. This prevents a constructor from dispatching to incomplete subclass state while retaining a controlled test seam.
 
-Patterns are engineering tools. Use them to solve engineering problems, not to demonstrate knowledge of patterns.
+### Factory and Strategy Boundary
 
-### Factory
+When a public service method selects a strategy, the service holds an injectable factory or resolver and resolves a strategy on each public call. It then delegates the isolated calculation to a package-private helper that receives the selected strategy directly.
 
-Use factories when construction is non-trivial, multiple implementations exist, or testability improves.
+Tests cover both paths:
 
-### Builder
+1. Test the public method with a mocked factory to verify orchestration and delegation.
+2. Test the package-private helper with a supplied strategy to isolate its business logic.
 
-Use builders for complex objects with optional attributes. Required attributes belong in the builder constructor.
+The helper test supplements the public-method test; it never replaces it. Static factories are appropriate only for pure, deterministic construction that does not need substitution. Do not use reflection as a normal test seam. JUnit Platform `ReflectionSupport.invokeMethod` is reserved for legacy private code that cannot yet be refactored safely.
 
-### Strategy
+## SOLID and Patterns
 
-Use Strategy when behaviour varies by type, policy, or context. Prefer a strategy and factory over a large `switch` that selects algorithms.
+Use SOLID as design guidance, not as a reason to multiply types:
 
-### Adapter
+- Single Responsibility: a class has one coherent reason to change.
+- Open/Closed: introduce extension points for real variation.
+- Liskov Substitution: subtypes honour parent contracts.
+- Interface Segregation: interfaces remain focused without needless fragmentation.
+- Dependency Inversion: business logic depends on useful abstractions rather than replaceable infrastructure.
 
-Adapters translate; they do not decide. Use adapters for external APIs, vendor libraries, legacy systems, protocols, data conversion, and vendor exception mapping.
+Patterns are tools:
 
-### Facade
-
-Use facades to simplify subsystems and isolate application code from implementation details. Facades may orchestrate related subsystem operations, but business decisions belong in services or strategies.
-
-### Observer
-
-Use Observer within a bounded subsystem when decoupled event handling improves design. Avoid widespread observer use when it hides control flow.
-
-### Command
-
-Use Command when an operation has a lifecycle beyond a direct method call: queuing, retrying, scheduling, auditing, asynchronous execution, distributed execution, undo, or per-item failure handling.
-
-### Template Method
-
-Use Template Method when the workflow is fixed and only selected steps vary. Prefer Strategy when the sequence itself changes.
-
-### Decorator
-
-Decorator is acceptable when behaviour varies per object instance at runtime. For project-wide cross-cutting concerns such as logging, timing, auditing, or metrics, prefer centralizing behaviour in a facade.
-
-### Singleton
-
-Avoid Singleton by default. Use it only when uniqueness is inherent to the object.
+- Use Factory for non-trivial or variable construction.
+- Use Builder for complex construction with optional attributes; require mandatory values at builder construction.
+- Use Strategy when an algorithm varies by type, policy, or context.
+- Use Adapter to translate an external system without owning business decisions.
+- Use Facade to simplify a subsystem and isolate replaceable libraries.
+- Use Observer only within a bounded area where it does not hide control flow.
+- Use Command when an operation needs queuing, retry, scheduling, audit, asynchronous execution, or undo.
+- Use Template Method when the workflow is stable and selected steps vary.
+- Use Decorator for per-instance behavioural composition; use a facade for application-wide infrastructure concerns.
+- Avoid Singleton unless uniqueness is an inherent domain constraint.
 
 ## Concurrency and Thread Safety
 
 Classes are not thread-safe by default. Thread safety is an explicit design decision.
 
-Prefer:
+Prefer sequential code, immutable data across thread boundaries, explicit mutable-state ownership, standard JDK concurrency utilities, and small synchronized regions. Avoid hidden thread interaction, hand-written locking schemes, and locks held during I/O or external calls.
 
-- simple sequential code,
-- immutable data crossing thread boundaries,
-- explicit ownership of mutable state,
-- standard JDK concurrency utilities,
-- and small synchronized regions.
+Every intentionally thread-safe class states that contract in class Javadoc and documents material ownership assumptions.
 
-Avoid:
-
-- shared mutable state,
-- unnecessary synchronization,
-- hand-written locking schemes,
-- hidden thread interactions,
-- locks held during I/O or external calls.
-
-Every intentionally thread-safe class must say so in class Javadoc. Important threading assumptions must also be documented.
-
-## Resource Management
+## Resource and Transaction Ownership
 
 - Prefer `try-with-resources` for `AutoCloseable` resources.
 - Keep resource scopes as small as practical.
 - The creator or borrower owns cleanup unless ownership is explicitly transferred.
 - Do not close caller-owned resources.
-- For pooled JDBC connections, `close()` normally returns the connection to the pool.
-- Cleanup should occur immediately in the smallest reasonable scope.
+- Let `try-with-resources` close an owned buffered wrapper; closing the wrapper flushes its buffered output. Call `flush()` explicitly only when the data must become visible before the resource scope ends.
+- A pooled JDBC connection's `close()` normally returns it to the pool.
 
-## Transactions
+Transactions belong at the layer that understands the complete business operation, normally the service layer. Repositories participating in a service transaction do not independently commit, roll back, or close the shared connection. Commit and rollback are explicit.
 
-Transaction boundaries should normally live at the layer that understands the complete business operation, usually the service layer.
+## Exceptions and Logging Boundaries
 
-Repositories participating in a service transaction should not independently commit, roll back, or close the shared connection.
+Use checked exceptions for anticipated, recoverable business and persistence failures. Use unchecked exceptions for programming errors, API misuse, and broken invariants. Preserve the original cause when translating a failure. Retain a concise comment when it explains why an exception is intentionally translated at an application boundary rather than merely repeating the code.
 
-Commit and rollback must be explicit.
+Log a failure once at the boundary that handles it, reports it, or converts it into an operational outcome. Lower layers normally preserve and propagate the cause without logging it. A lower layer may log unique operational context that cannot be reconstructed above, but it must avoid duplicating the same stack trace at each level.
 
 ## Performance
 
-Design with performance awareness, but optimize with evidence.
+Prioritize correctness, readability, credible risk, and measured optimization in that order. Pay particular attention to I/O, database access, repeated allocation in measured hot paths, large retained objects, serialization, and repeated transformations.
 
-Prioritize:
-
-1. Correctness.
-2. Readability and maintainability.
-3. Credible performance risks.
-4. Measured optimization.
-
-Pay attention to predictable hotspots:
-
-- I/O,
-- database access,
-- repeated object allocation,
-- large in-memory objects,
-- serialization,
-- and repeated transformations.
-
-Prefer pushing filtering, sorting, aggregation, and set operations into the database where practical. Use caching proactively when the access pattern clearly justifies it, but do not add caching because it is fashionable.
+Push set operations into a database when it is the appropriate owner. Add caching only when the access pattern and invalidation model justify it. Do not compromise the one-return or clarity rules based on an unsupported just-in-time compiler claim.
 
 ## Refactoring
 
-Preferred sequence:
+Use this sequence where practical:
 
-1. Add characterization or regression tests first.
+1. Add characterization or regression tests.
 2. Refactor while preserving behaviour.
 3. Implement the requested change.
-4. Run the relevant test suite after each stage.
+4. Run the relevant tests after each stage.
 
-Refactoring categories:
-
-- Required refactoring: necessary to test or safely implement the requested behaviour.
-- Adjacent refactoring: small, tested improvements directly touching changed code.
-- Strategic refactoring: broad redesign requiring explicit approval, estimation, and separate tracking.
-
-Do not modernize code merely to use newer syntax, libraries, or frameworks.
+Required refactoring is necessary to implement or test safely. Adjacent refactoring is a small, tested improvement directly touching the change. Strategic refactoring is a broad redesign requiring explicit approval and separate planning. Keep scope visible and do not modernize code solely to use newer syntax or frameworks.
 
 ## Test-Driven Development and Testability
 
-Tests are the first consumer of a design.
+Tests are the first consumer of the design. Use a red, green, refactor cycle where practical, then cover edge conditions and failure paths.
 
-TDD cycle:
+- Give each test one behavioural purpose; multiple assertions may support that purpose.
+- Give every test method Javadoc that identifies the primary or alternate happy path, edge condition, or failure trigger it verifies.
+- Use explicit Arrange, Act, Assert sections.
+- Use package-private test classes, test methods, and lifecycle methods by default.
+- Keep test attributes private unless a test extension specifically requires broader visibility.
+- Use the latest stable JUnit release compatible with the project's Java version.
+- Use `assertThrows` when it expresses the expected failure clearly.
+- Provide callback and `assertThrows` operations through explicit functional-interface implementations when a lambda would require the reader to mentally expand hidden behaviour.
+- Create Mockito mocks explicitly in new tests.
+- Select the simplest suitable dummy, stub, fake, mock, or spy.
+- Mock external systems, slow dependencies, clocks, ID generators, web services, repositories, and databases at unit boundaries.
+- Do not mock logging unless logging behaviour is the subject.
+- Use real, disposable infrastructure for integration tests where practical.
+- Create temporary files dynamically and clean them up.
+- Treat flaky tests as defects.
 
-1. Write a happy-path test for the behaviour.
-2. Confirm it fails for the expected reason when practical.
-3. Write code to satisfy the test.
-4. Refactor the test and production code.
-5. Add edge and unhappy-path tests.
+Every application-visible method has a direct behavioural unit test, including constructors, getters, setters, and mechanically generated APIs. Generated code is not exempt because generation does not prove that the specification, mapping, key, or generator configuration is correct. Compiler-created synthetic internals outside the observable contract are not direct test targets.
 
-Testing standards:
+Greenfield CI enforces at least 80% line and branch coverage. Brownfield projects record a baseline, prevent regression, and improve deliberately. Exclusions are documented and approved. Coverage never substitutes for testing meaningful behaviour.
 
-- One behaviour per test.
-- Multiple assertions are acceptable when they verify one behaviour.
-- Use Arrange, Act, Assert comments.
-- Use the latest stable JUnit compatible with the supported Java version.
-- Use explicit Mockito mock creation for new tests.
-- Understand dummies, stubs, mocks, fakes, and spies, but do not get hung up on terminology.
-- Choose the simplest test double that clearly expresses intent.
-- Use explicit try/catch for exception assertions.
-- Mock external systems, slow dependencies, clocks, ID generators, web services, repositories, and databases.
-- Do not mock logging unless logging is the feature.
-- Integration tests should use real infrastructure when practical.
-- Test databases must be isolated and disposable.
-- Temporary files must be created dynamically and cleaned up.
-- Flaky tests are defects.
-- Use containers and CI to ensure tests behave across operating systems.
-- Mirror production package structure in tests.
-- Every commit should compile, run unit tests, run static analysis, pass linters and formatting checks, run integration tests where applicable, and meet the agreed coverage goal.
-
-Coverage is a guide. Aim high, accept practical thresholds such as 80% where appropriate, and investigate unreachable code.
+Quality gates apply at pull-request and merge boundaries. A coherent, independently buildable commit is encouraged but not required.
