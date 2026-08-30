@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * In-memory customer repository used by examples and tests.
+ * Stores customers in memory for the example.
  */
 public class InMemoryCustomerRepository implements CustomerRepository
 {
@@ -23,11 +23,11 @@ public class InMemoryCustomerRepository implements CustomerRepository
 	// ########################################################################
 
 	/**
-	 * Returns the customer map.
+	 * Returns the lazily initialized customer map.
 	 *
 	 * @return The customer map.
 	 */
-	Map<String, Customer> getCustomersById()
+	final Map<String, Customer> getCustomersById()
 	{
 		if (m_customersById == null)
 		{
@@ -42,7 +42,7 @@ public class InMemoryCustomerRepository implements CustomerRepository
 	// ########################################################################
 
 	/**
-	 * Creates an in-memory customer repository.
+	 * Creates an empty in-memory customer repository.
 	 */
 	public InMemoryCustomerRepository()
 	{
@@ -77,6 +77,11 @@ public class InMemoryCustomerRepository implements CustomerRepository
 	 */
 	public void saveCustomer(final Customer p_customer)
 	{
+		if (p_customer == null)
+		{
+			throw new IllegalArgumentException("The customer is required.");
+		}
+
 		getCustomersById().put(p_customer.getCustomerId(), p_customer);
 	}
 

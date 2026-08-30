@@ -39,11 +39,11 @@ public class Customer
 	}
 
 	/**
-	 * Sets the customer identifier.
+	 * Sets the customer identifier during controlled construction or testing.
 	 *
 	 * @param p_customerId The customer identifier.
 	 */
-	void setCustomerId(final String p_customerId)
+	final void setCustomerId(final String p_customerId)
 	{
 		if (p_customerId == null)
 		{
@@ -56,7 +56,7 @@ public class Customer
 	/**
 	 * Returns the customer name.
 	 *
-	 * @return The customer name.
+	 * @return The customer name, or an empty string when no name is configured.
 	 */
 	public String getName()
 	{
@@ -83,7 +83,7 @@ public class Customer
 	/**
 	 * Returns the customer type.
 	 *
-	 * @return The customer type.
+	 * @return The customer type, defaulting to standard.
 	 */
 	public CustomerType getCustomerType()
 	{

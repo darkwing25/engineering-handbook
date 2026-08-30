@@ -4,19 +4,20 @@ This workflow defines how AI should help maintain this handbook. AI amplifies en
 
 ## 1. Discovery
 
-Use interviews and existing code to identify principles, recurring decisions, trade-offs, and terminology. During discovery, AI may ask questions and point out patterns, but it must not invent philosophy.  Capture rationale, not just decisions.  Distinguish personal preferences from engineering principles.
+Use interviews and existing code to identify principles, recurring decisions, trade-offs, and terminology. During discovery, AI may ask questions and point out patterns, but it must not invent philosophy. Capture rationale, not just decisions. Distinguish personal preferences from engineering principles.
 
 ## 2. Architecture
 
 Organize the material into durable document boundaries:
 
 - Software Design Philosophy
-- Architecture and Development Practices
-- Java Coding Standard
+- Engineering Lifecycle Practices
+- Project Documentation Standard
+- Language-specific architecture and coding standards
 - Code Review Checklist
 - Engineering Decision Records
-- AI instructions
-- Examples
+- AI operational and authoring guidance
+- Independently executable examples
 
 The architecture phase decides where ideas belong and how documents reference each other.
 
@@ -48,7 +49,7 @@ Technical review may improve clarity, but it must not change the underlying engi
 
 ## 5. Engineering Review
 
-The engineer has final authority over philosophy. If an AI suggestion would alter intent, it must be presented as a proposed change, not silently applied.  Resolve open questions.
+The engineer has final authority over philosophy. If an AI suggestion would alter intent, it must be presented as a proposed change, not silently applied. Resolve open questions.
 
 ## 6. Publication
 
@@ -61,3 +62,9 @@ Before publication:
 - and mark unresolved questions clearly.
 
 Published guidance should be stable. Change it deliberately through EDRs rather than casual edits.
+
+## 7. Operational Controls
+
+All authoring and publication work follows [AI Operational Governance](AI_OPERATIONAL_GOVERNANCE.md). Classify risk before tool use, keep authorization and scope explicit, use independent AI critique and human stage gates for high-risk work, and retain an accountable human reviewer.
+
+AI may draft a commit or pull-request description, but the human validates its intent, risks, and test evidence. Use the required disclosure trailer and pull-request field.

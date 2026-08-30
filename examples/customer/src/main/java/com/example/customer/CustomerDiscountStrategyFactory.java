@@ -3,23 +3,42 @@ package com.example.customer;
 /**
  * Creates customer discount strategies.
  */
-public final class CustomerDiscountStrategyFactory
+public class CustomerDiscountStrategyFactory
 {
+	// ########################################################################
+	// Constants
+	// ########################################################################
+
+	// ########################################################################
+	// Attributes
+	// ########################################################################
+
+	// ########################################################################
+	// Accessors
+	// ########################################################################
+
+	// ########################################################################
+	// Constructors
+	// ########################################################################
+
 	/**
-	 * Prevents construction.
+	 * Creates a customer discount strategy factory.
 	 */
-	private CustomerDiscountStrategyFactory()
+	public CustomerDiscountStrategyFactory()
 	{
 	}
+
+	// ########################################################################
+	// Public Methods
+	// ########################################################################
 
 	/**
 	 * Creates the discount strategy.
 	 *
 	 * @param p_customerType The customer type.
-	 *
 	 * @return The discount strategy.
 	 */
-	public static CustomerDiscountStrategy createStrategy(final CustomerType p_customerType)
+	public CustomerDiscountStrategy createStrategy(final CustomerType p_customerType)
 	{
 		CustomerDiscountStrategy strategy = null;
 
@@ -34,4 +53,16 @@ public final class CustomerDiscountStrategyFactory
 
 		return strategy;
 	}
+
+	// ########################################################################
+	// Protected Methods
+	// ########################################################################
+
+	// ########################################################################
+	// Private Methods
+	// ########################################################################
+
+	// ########################################################################
+	// Main
+	// ########################################################################
 }
